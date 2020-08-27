@@ -8,16 +8,24 @@ class App extends Component {
         super(props);
        this.state = {
          edit:false,
+         add:false,
+         name: '',
+        category:'',
+        barcode:'',
+        price:'',
+        expiryDate:'',
+        created:'',
       products: []
     } 
     this.editing = this.editing.bind(this);
+    this.addProduct= this.addProduct.bind(this);
+    this.handleSubmit= this.handleSubmit.bind(this);
+    this.handleChange= this.handleChange.bind(this);
       }
    
     componentDidMount() {
       axios.get('https://striped-stripe-ulna.glitch.me/api/reorder')
       .then(res => {
-      //  var newdata = Object.values(res.data)
-      // var newdata= Object.keys(res.data).map(i => res.data[i]);
         this.setState({ products: res.data })
         console.log(this.state.products)
       })
@@ -29,15 +37,65 @@ class App extends Component {
    })
     }
   
+    addProduct(){
+      this.setState({
+       add: true
+      })  
+    }
+
+    handleSubmit(event){
+      event.preventDefault();
+
+      const newProducts = {
+        name: this.state.name,
+        category: this.state.category,
+        barcode: this.state.barcode,
+        price: this.state.price,
+        expiryDate: this.state.expiryDate,
+        created: this.state.created
+      };
+  
+      axios.post('https://striped-stripe-ulna.glitch.me/api/reorder', { newProducts })
+        .then(res => {
+          console.log(res);
+          console.log(res.data);
+        }) 
+    }
+
+    
+  handleChange(event){
+    this.setState({ name: event.target.value,
+      category: event.target.value,
+      barcode: event.target.value,
+      price: event.target.value,
+      expiryDate: event.target.value,
+      created:event.target.value
+    });
+  }
+
      render(){
-      
+      const add =
+      <tr>
+            <td className='adj2'>{this.state.products.length + 1}</td>
+           <td className='adj' > <input type="text" name="name" onChange={this.handleChange} /></td>
+           <td className='adj'><input type="text" name="category" onChange={this.handleChange} /></td>
+           <td className='adj'><input type="text" name="barcode" onChange={this.handleChange} /></td>
+           <td className='adj'><button onClick={this.handleSubmit} className= 'btn1'>submit</button></td>
+           <td className='adj2' ><input type="text" name="price" onChange={this.handleChange} /></td>
+           <td className='adj' ><input type="text" name="expiryDate" onChange={this.handleChange} /></td>
+           <td className='adj1'><input type="text" name="created" onChange={this.handleChange} /></td>
+           </tr>
+      const noadd= <br></br>
     return(
     <div className='container'>
     <div className= 'topbar'></div>
     <div className='container1'>
     <div className= 'container2'>
     <div id= 'container3'>
-    <span><p id='subhead'>All Products</p><button className='btn2'>Add new product</button></span>
+    <span>
+      <p id='subhead'>All Products</p>
+    <button onClick={this.addProduct} className='btn2'>Add new product</button>
+    </span>
     <table class="table" id='heading'>
     <thead>
          <tr>
@@ -81,20 +139,27 @@ class App extends Component {
         <td className='adj2'>{i+1}</td>
         <td className='adj'>
         <img className="adjimg" src={product.image} alt="product"/>
-          {this.state.edit == true?editname2:editname1}
+          {this.state.edit === true?editname2:editname1}
         </td>
-        {this.state.edit == true?editcat2:editcat1}
-        {this.state.edit == true?editbar2:editbar1}
+        {this.state.edit === true?editcat2:editcat1}
+        {this.state.edit === true?editbar2:editbar1}
         <td className='adj'><button onClick={this.editing} className= 'btn1'>edit</button></td>
-        {this.state.edit == true?editpri2:editpri1}
-        {this.state.edit == true?editexp2:editexp1}
-        {this.state.edit == true?editcre2:editcre1}
+        {this.state.edit === true?editpri2:editpri1}
+        {this.state.edit === true?editexp2:editexp1}
+        {this.state.edit === true?editcre2:editcre1}
       </tr>
       </tbody> 
    </table>
      ) 
     })
- }                                                                                                                                                                                                                                                                                                                                                                                            
+ }     
+ <table class="table">
+      <tbody>
+{this.state.add === true?add:noadd}
+
+       </tbody>
+</table>
+
    </div>
    </div>
    </div>
