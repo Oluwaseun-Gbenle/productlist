@@ -36,11 +36,16 @@ class App extends Component {
      edit: !this.state.edit
    })
     }
+   
   
     addProduct(){
       this.setState({
        add: true
       })  
+    }
+
+    handleChange(event){
+      this.setState({[event.target.name]: event.target.value}); 
     }
 
     handleSubmit(event){
@@ -50,53 +55,50 @@ class App extends Component {
         name: this.state.name,
         category: this.state.category,
         barcode: this.state.barcode,
-        price: this.state.price,
-        expiryDate: this.state.expiryDate,
-        created: this.state.created
+        unit_cost_price: this.state.price,
+        expiry_date: this.state.expiryDate,
+        created_at: this.state.created
       };
   
-      axios.post('https://striped-stripe-ulna.glitch.me/api/reorder', { newProducts })
+      axios.post('https://striped-stripe-ulna.glitch.me/api/reorder',  newProducts )
         .then(res => {
           console.log(res);
           console.log(res.data);
         }) 
     }
 
-    
-  handleChange(event){
-    this.setState({ name: event.target.value,
-      category: event.target.value,
-      barcode: event.target.value,
-      price: event.target.value,
-      expiryDate: event.target.value,
-      created:event.target.value
-    });
-  }
+  
 
      render(){
       const add =
       <tr>
             <td className='adj2'>{this.state.products.length + 1}</td>
-           <td className='adj' > <input type="text" name="name" onChange={this.handleChange} /></td>
-           <td className='adj'><input type="text" name="category" onChange={this.handleChange} /></td>
-           <td className='adj'><input type="text" name="barcode" onChange={this.handleChange} /></td>
+           <td className='adj' > <input type="text" name="name" value={this.state.name} onChange={this.handleChange} /></td>
+           <td className='adj'><input type="text" name="category" value={this.state.category} onChange={this.handleChange} /></td>
+           <td className='adj'><input type="text" name="barcode" value={this.state.barcode} onChange={this.handleChange} /></td>
            <td className='adj'><button onClick={this.handleSubmit} className= 'btn1'>submit</button></td>
-           <td className='adj2' ><input type="text" name="price" onChange={this.handleChange} /></td>
-           <td className='adj' ><input type="text" name="expiryDate" onChange={this.handleChange} /></td>
-           <td className='adj1'><input type="text" name="created" onChange={this.handleChange} /></td>
+           <td className='adj2' ><input type="text" name="price" value={this.state.price} onChange={this.handleChange} /></td>
+           <td className='adj' ><input type="text" name="expiryDate"  value={this.state.expiryDate} onChange={this.handleChange} /></td>
+           <td className='adj1'><input type="text" name="created" value={this.state.created} onChange={this.handleChange} /></td>
            </tr>
-      const noadd= <br></br>
+      const noadd= <td></td>
     return(
     <div className='container'>
-    <div className= 'topbar'></div>
+    <div className= 'topbar'><img id='topimg' src='https://image.freepik.com/free-vector/purple-logo-with-arrows-shape_1043-46.jpg' alt='logo'/></div>
     <div className='container1'>
+    <ul>
+  <li><a  href="#home">Dashboard</a></li>
+  <li><a href="#news">Analytics</a></li>
+  <li><a class="active" href="#contact">Products</a></li>
+  <li><a href="#about">Logout</a></li>
+</ul>
     <div className= 'container2'>
     <div id= 'container3'>
     <span>
       <p id='subhead'>All Products</p>
     <button onClick={this.addProduct} className='btn2'>Add new product</button>
     </span>
-    <table class="table" id='heading'>
+    <table className="table" id='heading'>
     <thead>
          <tr>
          <th>#</th>
@@ -114,8 +116,6 @@ class App extends Component {
     this.state.products.map((product,i)=>{
       const editname1 =  <div>{product.name}</div>
       const editname2 =  <div contentEditable>{product.name}</div>
-      const editcat1=   <td className='adj'>FOOD AND BEVERAGE</td>
-      const editcat2=   <td className='adj'contentEditable>FOOD AND BEVERAGE</td>
       const editbar2= <td contentEditable className='adj1'>{product.barcode}</td>
       const editbar1= <td className='adj1'>{product.barcode}</td>
       const editpri1= <td className='adj'><p>cost</p> 
@@ -133,7 +133,7 @@ class App extends Component {
      const editcre2= <td className='adj1' contentEditable> {product.created_at} </td>
      const editcre1= <td className='adj1'> {product.created_at} </td>
       return(
-    <table class="table">
+    <table className="table">
        <tbody>
       <tr key={i}>
         <td className='adj2'>{i+1}</td>
@@ -141,7 +141,7 @@ class App extends Component {
         <img className="adjimg" src={product.image} alt="product"/>
           {this.state.edit === true?editname2:editname1}
         </td>
-        {this.state.edit === true?editcat2:editcat1}
+        <td className='adj'>FOOD AND BEVERAGE</td>
         {this.state.edit === true?editbar2:editbar1}
         <td className='adj'><button onClick={this.editing} className= 'btn1'>edit</button></td>
         {this.state.edit === true?editpri2:editpri1}
@@ -153,7 +153,7 @@ class App extends Component {
      ) 
     })
  }     
- <table class="table">
+ <table className="table">
       <tbody>
 {this.state.add === true?add:noadd}
 
