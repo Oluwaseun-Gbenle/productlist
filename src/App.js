@@ -9,18 +9,22 @@ class App extends Component {
        this.state = {
          edit:false,
          add:false,
+         image:'',
          name: '',
         category:'',
         barcode:'',
-        price:'',
+        costPrice:'',
+        sellingPrice:'',
         expiryDate:'',
         created:'',
+        rowKey:null,
       products: []
     } 
     this.editing = this.editing.bind(this);
     this.addProduct= this.addProduct.bind(this);
     this.handleSubmit= this.handleSubmit.bind(this);
     this.handleChange= this.handleChange.bind(this);
+    this.handleSave= this.handleSave.bind(this);
       }
    
     componentDidMount() {
@@ -31,11 +35,23 @@ class App extends Component {
       })
     }
 
-    editing(){
-   this.setState({
-     edit: !this.state.edit
-   })
-    }
+    editing(id){
+      this.state.products.filter(function(p,i) {
+        if(i==id) {
+          return
+      this.setState({ 
+          edit: !this.state.edit
+          })
+          
+        }
+        else{
+          return
+         this.setState({ 
+          edit: this.state.edit
+          })
+        }
+      })     
+  }
    
   
     addProduct(){
@@ -45,17 +61,19 @@ class App extends Component {
     }
 
     handleChange(event){
-      this.setState({[event.target.name]: event.target.value}); 
+      this.setState({[event.target.name]: event.target.value});  
     }
 
     handleSubmit(event){
       event.preventDefault();
 
       const newProducts = {
+        image:this.state.image,
         name: this.state.name,
         category: this.state.category,
         barcode: this.state.barcode,
         unit_cost_price: this.state.price,
+        unit_selling_price:this.state.sellingPrice,
         expiry_date: this.state.expiryDate,
         created_at: this.state.created
       };
@@ -67,13 +85,31 @@ class App extends Component {
         }) 
     }
 
-  
+    handleSave(event){
+      event.preventDefault();
 
+      const newProducts = {
+        _id: this.state.id,
+        image:this.state.image,
+        name: this.state.name,
+        category: this.state.category,
+        barcode: this.state.barcode,
+        unit_cost_price: this.state.costPrice,
+        unit_selling_price:this.state.sellingPrice,
+        expiry_date: this.state.expiryDate,
+        created_at: this.state.created
+      };
+      axios.post('https://striped-stripe-ulna.glitch.me/api/reorder',  newProducts )
+      .then(res => {
+        console.log(res);
+        console.log(res.data);
+    })
+  }
      render(){
       const add =
       <tr>
             <td className='adj2'>{this.state.products.length + 1}</td>
-           <td className='adj' > <input type="text" name="name" value={this.state.name} onChange={this.handleChange} /></td>
+            <td className='adj' > <input type="text" name="name" value={this.state.name} onChange={this.handleChange} /></td>
            <td className='adj'><input type="text" name="category" value={this.state.category} onChange={this.handleChange} /></td>
            <td className='adj'><input type="text" name="barcode" value={this.state.barcode} onChange={this.handleChange} /></td>
            <td className='adj'><button onClick={this.handleSubmit} className= 'btn1'>submit</button></td>
@@ -89,7 +125,7 @@ class App extends Component {
     <ul>
   <li><a  href="#home">Dashboard</a></li>
   <li><a href="#news">Analytics</a></li>
-  <li><a class="active" href="#contact">Products</a></li>
+  <li><a className="active" href="#contact">Products</a></li>
   <li><a href="#about">Logout</a></li>
 </ul>
     <div className= 'container2'>
@@ -98,7 +134,7 @@ class App extends Component {
       <p id='subhead'>All Products</p>
     <button onClick={this.addProduct} className='btn2'>Add new product</button>
     </span>
-    <table className="table" id='heading'>
+    <table className="table table-hover table-bordered" id='heading'>
     <thead>
          <tr>
          <th>#</th>
@@ -111,31 +147,33 @@ class App extends Component {
            <th>Created</th>
          </tr>
        </thead>
-       </table>
+       
     {
     this.state.products.map((product,i)=>{
+      //const used
       const editname1 =  <div>{product.name}</div>
-      const editname2 =  <div contentEditable>{product.name}</div>
-      const editbar2= <td contentEditable className='adj1'>{product.barcode}</td>
+      const editname2 =  <input type="text" name="name" value={this.state.name} onChange={this.handleChange} />
+      const editbar2= <td className='adj1'><input type="text" name="barcode" value={this.state.barcode} onChange={this.handleChange} /></td>
       const editbar1= <td className='adj1'>{product.barcode}</td>
       const editpri1= <td className='adj'><p>cost</p> 
       <p>{product.unit_cost_price}</p>
       <p>selling</p>
       <p>{product.unit_selling_price}</p>
       </td>
-      const editpri2= <td className='adj2' contentEditable><p>cost</p> 
-      <p>{product.unit_cost_price}</p>
+      const editpri2= <td className='adj2'><p>cost</p> 
+      <input type="text" name="costPrice" value={product.costPrice} onChange={this.handleChange} />
       <p>selling</p>
-      <p>{product.unit_selling_price}</p>
+      <input type="text" name="sellingPrice" value={product.sellingPrice} onChange={this.handleChange} />
       </td>
      const editexp1=  <td className='adj'> {product.expiry_date} </td>
-     const editexp2=  <td className='adj' contentEditable> {product.expiry_date} </td>
-     const editcre2= <td className='adj1' contentEditable> {product.created_at} </td>
+     const editexp2=  <td className='adj'> <input type="text" name="expiryDate" value={product.expiry_date} onChange={this.handleChange} /> </td>
+     const editcre2= <td className='adj1' >  <input type="text" name="created" value={product.created_at} onChange={this.handleChange} /> </td>
      const editcre1= <td className='adj1'> {product.created_at} </td>
+
+
       return(
-    <table className="table">
        <tbody>
-      <tr key={i}>
+      <tr key={product.id}>
         <td className='adj2'>{i+1}</td>
         <td className='adj'>
         <img className="adjimg" src={product.image} alt="product"/>
@@ -143,23 +181,23 @@ class App extends Component {
         </td>
         <td className='adj'>FOOD AND BEVERAGE</td>
         {this.state.edit === true?editbar2:editbar1}
-        <td className='adj'><button onClick={this.editing} className= 'btn1'>edit</button></td>
+        <td className='adj'><button  onClick={()=>{this.editing(product.id)}} className= 'btn1'>edit</button></td>
         {this.state.edit === true?editpri2:editpri1}
         {this.state.edit === true?editexp2:editexp1}
         {this.state.edit === true?editcre2:editcre1}
       </tr>
       </tbody> 
-   </table>
+   
      ) 
     })
  }     
- <table className="table">
+ 
       <tbody>
 {this.state.add === true?add:noadd}
 
        </tbody>
 </table>
-
+<button onClick={this.handleSave}className='btn3'>Save</button>
    </div>
    </div>
    </div>
