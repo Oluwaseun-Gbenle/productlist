@@ -3,31 +3,18 @@ import "./Product.css";
 import React, { useEffect, useState } from "react";
 import { Col, Row, Table } from "react-bootstrap";
 import { Formik, Field } from "formik";
+import { fetchData, updateProduct } from "./async-function";
 
 const Product = () => {
   const [products, setProducts] = useState([]);
   const [edit, setEdit] = useState(false);
   const [index, setIndex] = useState("");
-  const [toUpdate, setToUpdate] = useState({});
+  const [getId, setId] = useState("");
   const [add, setAdd] = useState(false);
+  const defaultProduct = products.find((product) => product._id === getId);
 
   useEffect(() => {
-    axios
-      .get("https://product-database-project.glitch.me/api/reorder")
-      .then((res) => {
-        setProducts(res.data);
-        console.log(products);
-      })
-      .catch((err) => err);
-    axios
-      .post(
-        "https://product-database-project.glitch.me/api/reorder/update",
-        toUpdate
-      )
-      .then((res) => {
-        console.log("update", toUpdate);
-      })
-      .catch((err) => err);
+    fetchData({ axios, setProducts });
   }, []);
 
   return (
@@ -73,24 +60,25 @@ const Product = () => {
           </div>
           <Formik
             initialValues={{
-              id: "",
-              image: "",
-              name: "",
-              category: "",
-              barcode: "",
-              unit_cost_price: "",
-              unit_selling_price: "",
-              expiry_date: "",
-              created_at: "",
+              id: defaultProduct?._id,
+              image: defaultProduct?.image,
+              name: defaultProduct?.name,
+              category: defaultProduct?.category,
+              barcode: defaultProduct?.barcode,
+              unit_cost_price: defaultProduct?.unit_cost_price,
+              unit_selling_price: defaultProduct?.unit_selling_price,
+              expiry_date: defaultProduct?.expiry_date,
+              created_at: defaultProduct?.created_at,
             }}
             validationSchema=""
             enableReinitialize={true}
             onSubmit={(values) => {
-              // values._id =
-              setToUpdate(values);
+              console.log("values", values);
+              setEdit(!edit);
+              updateProduct({axios,values})
             }}
           >
-            {({ handleSubmit, values, touched, errors, setFieldValue }) => (
+            {({ handleSubmit, values, setFieldValue }) => (
               <Table hover responsive className="">
                 <thead>
                   <tr>
@@ -108,10 +96,7 @@ const Product = () => {
                 {products?.map((product, idx) => (
                   <tbody>
                     <tr key={idx}>
-                      <td className="adj2">
-                        {idx + 1}
-                        <Field type="hidden" name="id" value={product._id} />
-                      </td>
+                      <td className="adj2">{idx + 1}</td>
                       <td className="adj">
                         <img
                           className="imgfit"
@@ -123,56 +108,55 @@ const Product = () => {
                         ) : index == idx ? (
                           <div>
                             Image
-                            <input
-                              type="text"
-                              name="image"
-                              defaultValue={product.image}
-                              onChange={(e) => {
-                                setFieldValue("image", e.target.value);
-                              }}
-                            />
+                            <Field type="text" name="image" />
                             Name
-                            <input
-                              type="text"
-                              name="name"
-                              defaultValue={product.name}
-                              onChange={(e) => {
-                                setFieldValue("name", e.target.value);
-                              }}
-                            />
+                            <Field type="text" name="name" />
                           </div>
                         ) : (
                           <div>{product.name}</div>
                         )}
                       </td>
-                      <td className="adj">FOOD AND BEVERAGE</td>
+                      <td className="adj">
+                        {!edit ? (
+                          <div>{product.category}</div>
+                        ) : index == idx ? (
+                          <Field type="text" name="category" />
+                        ) : (
+                          <div>{product.category}</div>
+                        )}
+                      </td>
                       <td className="adj">
                         {!edit ? (
                           <div>{product.barcode}</div>
                         ) : index == idx ? (
-                          <input
-                            type="text"
-                            name="barcode"
-                            defaultValue={product.barcode}
-                            onChange={(e) => {
-                              setFieldValue("barcode", e.target.value);
-                            }}
-                          />
+                          <Field type="number" name="barcode" />
                         ) : (
                           <div>{product.barcode}</div>
                         )}
                       </td>
 
                       <td className="adj">
-                        <button
-                          onClick={() => {
-                            setEdit(!edit);
-                            setIndex(idx);
-                          }}
-                          className="btn1"
-                        >
-                          Edit
-                        </button>
+                        {!edit ? (
+                          <button
+                            onClick={() => {
+                              setEdit(!edit);
+                              setIndex(idx);
+                              setId(product._id);
+                            }}
+                            className="btn1"
+                          >
+                            Edit
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => {
+                              handleSubmit();
+                            }}
+                            className="btn1"
+                          >
+                            Save
+                          </button>
+                        )}
                         <button onClick={() => {}} className="btn1">
                           Delete
                         </button>
@@ -188,29 +172,9 @@ const Product = () => {
                         ) : index == idx ? (
                           <div>
                             <p className="h6">Cost</p>
-                            <input
-                              type="text"
-                              name="unit_cost_price"
-                              defaultValue={product.unit_cost_price}
-                              onChange={(e) => {
-                                setFieldValue(
-                                  "unit_cost_price",
-                                  e.target.value
-                                );
-                              }}
-                            />
+                            <Field type="number" name="unit_cost_price" />
                             <p className="h6 price">Selling</p>
-                            <input
-                              type="text"
-                              name="unit_selling_price"
-                              defaultValue={product.unit_selling_price}
-                              onChange={(e) => {
-                                setFieldValue(
-                                  "unit_selling_price",
-                                  e.target.value
-                                );
-                              }}
-                            />
+                            <Field type="number" name="unit_selling_price" />
                           </div>
                         ) : (
                           <div>
@@ -224,14 +188,7 @@ const Product = () => {
                         {!edit ? (
                           <div>{product.expiry_date}</div>
                         ) : index == idx ? (
-                          <input
-                            type="text"
-                            name="expiry_date"
-                            defaultValue={product.expiry_date}
-                            onChange={(e) => {
-                              setFieldValue("expiry_date", e.target.value);
-                            }}
-                          />
+                          <Field type="text" name="expiry_date" />
                         ) : (
                           <div>{product.expiry_date}</div>
                         )}
@@ -240,14 +197,7 @@ const Product = () => {
                         {!edit ? (
                           <div>{product.created_at}</div>
                         ) : index == idx ? (
-                          <input
-                            type="text"
-                            name="created_at"
-                            defaultValue={product.created_at}
-                            onChange={(e) => {
-                              setFieldValue("created_at", e.target.value);
-                            }}
-                          />
+                          <Field type="text" name="created_at" />
                         ) : (
                           <div>{product.created_at}</div>
                         )}
@@ -262,18 +212,25 @@ const Product = () => {
                       <td>
                         <Field type="text" name="name" />
                       </td>
-                      <td className="adj">FOOD AND BEVERAGE</td>
+                      <td className="adj">
+                        <Field type="text" name="category" />
+                      </td>
                       <td>
                         <Field type="text" name="barcode" />
                       </td>
                       <td>
-                        <button onClick={() => {}} className="btn2">
+                        <button
+                          onClick={() => {
+                            /*handleSubmit()*/
+                          }}
+                          className="btn2 mx-4"
+                        >
                           Save
                         </button>
                       </td>
                       <td>
                         <p className="h6">Cost</p>
-                        <Field type="text" name="unit_cost_price" />
+                        <input type="text" name="unit_cost_price" onChange={(e)=>setFieldValue("unit_cost_price", e.target.value)} />
                         <p className="h6 price">Selling</p>
                         <Field type="text" name="unit_selling_price" />
                       </td>
@@ -281,19 +238,11 @@ const Product = () => {
                         <Field type="text" name="expiry_date" />
                       </td>
                       <td>
-                        <input type="text" name="created_at" />
+                        <Field type="text" name="created_at" />
                       </td>
                     </tr>
                   </tbody>
                 )}
-                <button
-                  onClick={() => {
-                    handleSubmit();
-                  }}
-                  className="btn3"
-                >
-                  Save
-                </button>
               </Table>
             )}
           </Formik>
