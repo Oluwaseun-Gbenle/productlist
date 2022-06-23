@@ -3,7 +3,7 @@ import "./Product.css";
 import React, { useEffect, useState } from "react";
 import { Col, Row, Table } from "react-bootstrap";
 import { Formik, Field } from "formik";
-import { fetchData, updateProduct } from "./async-function";
+import { fetchData, updateProduct, createProduct, deleteProduct } from "./async-function";
 
 const Product = () => {
   const [products, setProducts] = useState([]);
@@ -15,7 +15,7 @@ const Product = () => {
 
   useEffect(() => {
     fetchData({ axios, setProducts });
-  }, []);
+  }, [products]);
 
   return (
     <>
@@ -50,6 +50,7 @@ const Product = () => {
             <div>All Products</div>
             <button
               onClick={() => {
+                setEdit(false)
                 setAdd(!add);
                 window.scrollTo(0, 20000);
               }}
@@ -73,9 +74,13 @@ const Product = () => {
             validationSchema=""
             enableReinitialize={true}
             onSubmit={(values) => {
-              console.log("values", values);
-              setEdit(!edit);
-              updateProduct({axios,values})
+              setEdit(false);
+              setAdd(false)
+              if (add) {
+                createProduct({ axios, values });
+              } else {
+                updateProduct({ axios, values });
+              }
             }}
           >
             {({ handleSubmit, values, setFieldValue }) => (
@@ -110,7 +115,7 @@ const Product = () => {
                             Image
                             <Field type="text" name="image" />
                             Name
-                            <Field type="text" name="name" />
+                            <Field type="text" name="name" className="text-uppercase" />
                           </div>
                         ) : (
                           <div>{product.name}</div>
@@ -139,6 +144,7 @@ const Product = () => {
                         {!edit ? (
                           <button
                             onClick={() => {
+                              setAdd(false);
                               setEdit(!edit);
                               setIndex(idx);
                               setId(product._id);
@@ -157,7 +163,7 @@ const Product = () => {
                             Save
                           </button>
                         )}
-                        <button onClick={() => {}} className="btn1">
+                        <button onClick={() => {deleteProduct(axios, product._id)}} className="btn1">
                           Delete
                         </button>
                       </td>
@@ -210,18 +216,43 @@ const Product = () => {
                     <tr>
                       <td>*</td>
                       <td>
-                        <Field type="text" name="name" />
+                        Image
+                        <input
+                          type="text"
+                          name="image"
+                          onChange={(e) =>
+                            setFieldValue("image", e.target.value)
+                          }
+                        />
+                        Name
+                        <Field
+                          type="text"
+                          name="name"
+                          className="text-uppercase"
+                        />
                       </td>
                       <td className="adj">
-                        <Field type="text" name="category" />
+                        <input
+                          type="text"
+                          name="category"
+                          onChange={(e) =>
+                            setFieldValue("category", e.target.value)
+                          }
+                        />
                       </td>
                       <td>
-                        <Field type="text" name="barcode" />
+                        <input
+                          type="text"
+                          name="barcode"
+                          onChange={(e) =>
+                            setFieldValue("barcode", e.target.value)
+                          }
+                        />
                       </td>
                       <td>
                         <button
                           onClick={() => {
-                            /*handleSubmit()*/
+                            handleSubmit();
                           }}
                           className="btn2 mx-4"
                         >
@@ -230,15 +261,39 @@ const Product = () => {
                       </td>
                       <td>
                         <p className="h6">Cost</p>
-                        <input type="text" name="unit_cost_price" onChange={(e)=>setFieldValue("unit_cost_price", e.target.value)} />
+                        <input
+                          type="text"
+                          name="unit_cost_price"
+                          onChange={(e) =>
+                            setFieldValue("unit_cost_price", e.target.value)
+                          }
+                        />
                         <p className="h6 price">Selling</p>
-                        <Field type="text" name="unit_selling_price" />
+                        <input
+                          type="text"
+                          name="unit_selling_price"
+                          onChange={(e) =>
+                            setFieldValue("unit_selling_price", e.target.value)
+                          }
+                        />
                       </td>
                       <td>
-                        <Field type="text" name="expiry_date" />
+                        <input
+                          type="text"
+                          name="expiry_date"
+                          onChange={(e) =>
+                            setFieldValue("expiry_date", e.target.value)
+                          }
+                        />
                       </td>
                       <td>
-                        <Field type="text" name="created_at" />
+                        <input
+                          type="text"
+                          name="created_at"
+                          onChange={(e) =>
+                            setFieldValue("created_at", e.target.value)
+                          }
+                        />
                       </td>
                     </tr>
                   </tbody>
