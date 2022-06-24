@@ -16,10 +16,13 @@ background-color: #fffefe;
 .container2{
   background-color: #fffefe;
   height:100%;
-  width:100%;
+  width:91%;
   margin-top:75px;
   margin-left:10%;
   border:30px solid #e0dfdf;
+  overflow-y:scroll;
+  position: fixed;
+  padding-bottom: 80px;
 }
 
  .adj{
@@ -76,6 +79,7 @@ ul {
   width: 10%;
   background-color: #f1f1f1;
   height: 100%; 
+  overflow: auto;
 }
 
 li a {
@@ -86,8 +90,15 @@ li a {
 }
 
 li a.active {
-  background-color:rgb(172, 35, 172);
+  background-color:#ac23ac;
   color: white;
+  text-decoration: none;
+}
+
+li a:hover {
+  background-color: #d42ad4;
+  color: white;
+  text-decoration: none;
 }
 
 .btn3{
